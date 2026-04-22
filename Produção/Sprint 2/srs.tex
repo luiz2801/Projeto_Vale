@@ -1,0 +1,282 @@
+\documentclass{scrreprt}
+\usepackage{listings}
+\usepackage{underscore}
+\usepackage{graphicx}
+\usepackage[bookmarks=true]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\hypersetup{
+    bookmarks=false,
+    pdftitle={Especificação de Requisitos de Software},
+    pdfauthor={Christian Amarildo},
+    pdfsubject={Projeto Anonimizador},
+    pdfkeywords={Anonimizador, LGPD, LLM, Privacidade},
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=black,
+    filecolor=black,
+    urlcolor=purple,
+    linktoc=page
+}%
+\def\myversion{1.0 }
+\date{}
+
+\begin{document}
+
+\begin{flushright}
+    \rule{16cm}{5pt}\vskip1cm
+    \begin{bfseries}
+        \Huge{ESPECIFICAÇÃO DE REQUISITOS DE SOFTWARE}\\
+        \vspace{1.5cm}
+        para\\
+        \vspace{1.5cm}
+        PROJETO ANONIMIZADOR\\
+        \vspace{1.5cm}
+        \LARGE{Versão \myversion}\\
+        \vspace{1.5cm}
+        Preparado por: Christian Amarildo\\
+        \vspace{1.5cm}
+        \today\\
+    \end{bfseries}
+\end{flushright}
+
+\tableofcontents
+
+\chapter{Introdução}
+
+\section{Propósito}
+O propósito deste documento é definir os requisitos do Projeto Anonimizador, cujo objetivo é criar uma camada de proteção offline entre o usuário e as inteligências artificiais comerciais. O software atua como um túnel de limpeza para garantir que dados sensíveis não saiam da máquina do usuário sem o devido mascaramento. Isso permite o uso seguro de ferramentas baseadas em modelos de linguagem avançados, mantendo a conformidade com a Lei Geral de Proteção de Dados.
+
+\section{Público-Alvo e Sugestões de Leitura}
+Esta especificação destina-se a desenvolvedores, gerentes de projeto, pesquisadores e usuários finais preocupados com a privacidade de dados e conformidade legal. O documento estabelece todas as informações funcionais, não funcionais e arquiteturais do sistema, servindo como base unificada para o desenvolvimento, revisão acadêmica e validação da ferramenta durante o seu ciclo de vida. Recomenda-se a leitura sequencial para um entendimento completo do ecossistema.
+
+\section{Escopo do Projeto}
+O escopo do projeto compreende o desenvolvimento de uma aplicação de processamento local para anonimização de documentos multiformatos. O grande diferencial desta aplicação reside na consistência da anonimização mantida através da abstração conceitual de projetos. Ao criar um projeto, o sistema estabelece um ambiente persistente onde as relações de substituição de entidades sensíveis são preservadas em todos os arquivos ali analisados. Desse modo, se um nome próprio for convertido em um pseudônimo em um documento inicial, essa exata transformação ocorrerá de forma sistemática nas ocorrências subsequentes presentes nos demais documentos vinculados. Essa estabilidade conjuntural é imprescindível para submissões e manutenções de interações lógicas rigorosas frente a modelos de processamento analítico profundo. Todo o tratamento ocorrerá inteiramente offline, certificando a confidencialidade ininterrupta, impedindo que o conteúdo trafegue pela nuvem sob justificativas de requisição de análise. Primeiramente focado para abranger leitura de textos brutos e documentos convertíveis de formatos portáteis base, a arquitetura comportará facilidade para acréscimos funcionais futuros.
+
+\chapter{Descrição Geral}
+
+\section{Perspectiva do Produto}
+O Anonimizador Offline desponta como uma alternativa robusta e privativa frente a serviços hospedados que impõe inspeção dos materiais do cliente via servidores de corporações centralizadas. Entregue como um produto local, ele encerra a época das abordagens essencialmente manuais para ocultação do texto ao incorporar a detecção passiva focada nos arranjos de registros formais típicos do país associada diretamente à substituição orgânica não destrutiva que mantém a naturalidade semântica da leitura.
+
+\section{Classes de Usuários e Características}
+O público principal condiz a indivíduos isolados, estudantes ou profissionais no trato de documentos de natureza sigilosa necessitados de interagir ativamente com inteligências eletrônicas amplas com ressalvas de anonimato. Supõe-se a esse grupo o trabalho constante em computadores pessoais munidos de sistemas operacionais padronizados. Exclui-se nesse perfil demandas sobre domínios e aprofundamento programático da operação ou criptografia, direcionando esforços ao estabelecimento de uma manipulação frontal puramente fluida. As aprovações dos ajustes ficarão pautadas por visões transparentes via correlações dispostas por relatórios práticos de painéis divididos na fase de ratificação do processamento.
+
+\section{Funções do Produto}
+A operacionalização rotineira é condicionada à deflagração da abertura de um projeto que fundará uma base referenciada e leve restrita unicamente às transcrições estendidas das identidades fictícias. Em momento próprio, o indivíduo definirá o alvo portador dos volumes de texto. Assim ativado, o escaneamento natural acionará o seu núcleo analítico para filtrar e destacar instâncias representativas como a classificação civil perante ao cadastro de pessoas físicas, registro generalizado de número da identidade nacional civil e componentes de código de localidade. As comparações interligam em instante próprio as novas constatações junto ao catálogo existente a fim de injetar constância exata ao repassar propostas pseudônimas, elaborando denominações variadas para personalidades inéditas descobertas em tempo de verificação. Nos passos conclusivos as exposições interativas oportunizam alterações nos campos até o aval categórico gerador do derivado formatado espelhando em tudo o material introdutório.
+
+\section{Ambiente Operacional}
+A operacionalidade concebida para a suíte impõe uma arquitetura resolvida pela ação inteiramente auto-contida. O enquadramento determina viabilidade plena configurada como software para trabalho com janela sem atrelamentos de comunicação via portais online de verificação. Esta restrição intrínseca decreta o uso do modelo de processamento da cadeia de linguagem subjacentes por meios isolados nos espaços alocados exclusivamente nos processadores clientes.
+
+\section\*{Design}
+O cerne estrutural repousa sobre componentes tecnológicos modernos e abertos, organizados em uma arquitetura robusta e enxuta. A camada lógica e de processamento de dados (backend) é desenvolvida primordialmente em Python. Nela, a detecção sintática e semântica de entidades sensíveis é ancorada pelo motor Microsoft Presidio, o qual será extensivamente abastecido com parâmetros e expressões regulares (regex) focados nas documentações padronizadas do Brasil. A segunda base consiste em um armazenamento relacional para a retenção das consistências de identidades, utilizando um banco de dados local leve (como o SQLite), garantindo persistência isolada sem a dependência de grandes servidores físicos para cada projeto. Na camada de interface (frontend), a interação visual onde o painel de aprovação das rotinas é governado será construída em Svelte, assegurando dinamismo e agilidade para o usuário. Por fim, rotinas periféricas assumirão toda a extração de fragmentos visuais e conversões translativas suportadas pelos módulos encarregados da tipografia de entrada e saída.
+
+\chapter{Arquitetura e Modelagem do Sistema}
+
+\section{Modelo de Entidades (Diagrama de Classes - Formato Textual)}
+
+A estrutura relacional orientada a objetos (e persistida em banco de dados SQLite) do projeto baseia-se nas seguintes classes principais e seus atributos e controladores:
+
+\begin{itemize}
+    \item \textbf{Classe Projeto}
+    \begin{itemize}
+        \item \textit{id} (UUID/Int): Chave primária do projeto.
+        \item \textit{titulo} (String): Nome dado pelo usuário ao escopo de isolamento.
+        \item \textit{descricao} (String): Informação opcional de contexto.
+        \item \textit{data\_criacao} (DateTime): Data de início do escopo.
+        \item \textit{Relacionamentos}: Possui 1-* (um-para-muitos) com \textit{Documentos} e \textit{DicionarioAtivo}.
+    \end{itemize}
+
+    \item \textbf{Classe Documento}
+    \begin{itemize}
+        \item \textit{id} (UUID/Int): Identificador único do arquivo.
+        \item \textit{projeto\_id} (Referência): Chave estrangeira para \textit{Projeto}.
+        \item \textit{caminho\_arquivo} (String): Percurso local ou blob do arquivo raiz carregado.
+        \item \textit{extensao} (Enum): '.pdf', '.docx', '.txt'.
+        \item \textit{status} (Enum): 'Pendente', 'Extraído', 'Analisado\_Pelo\_Motor', 'Aprovado'.
+        \item \textit{hash\_checksum} (String): Usado para validar se o arquivo não sofreu corrupção externa.
+    \end{itemize}
+
+    \item \textbf{Classe EntidadeDicionario (A Tabela De/Para)}
+    \begin{itemize}
+        \item \textit{id} (UUID/Int): Identificador da regra.
+        \item \textit{projeto\_id} (Referência): Interliga à regra de consistência do \textit{Projeto} pai.
+        \item \textit{texto\_original} (String): Ex: "Christian Amarildo" ou "123.456.789-00". O dado bruto capturado.
+        \item \textit{texto\_ficticio} (String): Ex: "John Doe" ou "999.888.777-66". O mascaramento aplicado.
+        \item \textit{categoria} (Enum): 'CPF', 'Nome', 'RG', 'Logradouro', 'Data', etc.
+        \item \textit{status\_revisao} (Boolean): Confirma se o usuário aprovou ativamente ou se foi só sugerido.
+    \end{itemize}
+
+    \item \textbf{Classe ControladorPresidio (Lógica de Motor Backend)}
+    \begin{itemize}
+        \item \textit{Atributo}: Lista de \textit{Context\_Recognizers\_Br} carregados em memória.
+        \item \textit{Método} \texttt{analisar\_texto(texto: String)} $\rightarrow$ Retorna uma lista formalizada com as entidades brutas.
+        \item \textit{Método} \texttt{aplicar\_mascaras(texto: String, dicionario: List[EntidadeDicionario])} $\rightarrow$ Devolve o texto final com \textit{replace} posicional baseado na consistência.
+    \end{itemize}
+
+    \item \textbf{Classe FormatadorArquivos (Módulo Textual)}
+    \begin{itemize}
+        \item \textit{Método} \texttt{extrair\_para\_analise(documento: Documento)} $\rightarrow$ Quebra o layout, separando blocos limpos para o Presidio varrer.
+        \item \textit{Método} \texttt{reconstruir\_e\_salvar(documento: Documento, texto\_modificado: String)} $\rightarrow$ Injeta os textos fictícios nos parâmetros de diagramação e retorna o caminho salvo.
+    \end{itemize}
+\end{itemize}
+
+Este mapeamento dita fundamentalmente o estado vital da aplicação. O \textit{Frontend} (Svelte) não demandará espelhamentos rígidos de estado persistente, visto que atua como consumidor e visualizador ativo dessas classes de serviço expostas controladas inteiramente pela porta do \textit{Backend}.
+
+\section{Fluxo de Execução (Diagrama de Sequência - Formato Textual)}
+
+A orquestração do processamento é resolvida de forma síncrona nos passos operacionais perante a visualização do usuário, delineando exatamente como e através de quais atores os dados fluem para materializar o respectivo túnel offline descrito pelas premissas do projeto. O fluxo iterativo obedece aos seguintes passos em ordem de roteamento:
+
+\begin{enumerate}
+    \item \textbf{[Ator Usuário] Inicia Chamada}: O indivíduo seleciona e empurra documentos passíveis de leitura para a interface renderizadora \textit{Svelte} atrelada ao Projeto ativo.
+    \item \textbf{[Frontend Svelte] Delega Tráfego}: A UI de controle encapsula arquivos e repassa a porta restrita do Controlador principal no processo do \textit{Backend} em Python assinalando o respectivo \textit{projeto\_id}.
+    \item \textbf{[Controlador Python] Quebra Estrutural (I/O)}: Aciona a ponte embutida no \textit{FormatadorArquivos} para destrinchar a montagem matriz de PDFs e Docx estipulando bloqueios protetores sobre a diagramação e liberando unicamente as \textit{strings} passíveis à leitura (texto limpo).
+    \item \textbf{[Controlador Python] Conversação com NLP}: Alimenta as cadeias de texto orgânico empacotadas chamando as rotinas nobres de motorização (\textit{ControladorPresidio}).
+    \item \textbf{[Motor Presidio] Verificação Profunda}: O algoritmo corre através da extensão repassada alavancando os analisadores de identificabilidade (\textit{recognizers} brasileiros). Processamentos encerram-se ao originar uma "Lista de Entidades Mapeadas" amarradas de posições métricas originais relativas.
+    \item \textbf{[Controlador Python] Checagem Restritiva no Banco de Dados}: Interligada com descobrimentos a máquina varre integralmente as colunatas nas tabelas internas do projeto corrente dispostas em base SQLite.
+    \begin{itemize}
+        \item \textit{Condição de Existência (Acerto / Hit)}: Identificando entidade captada já em repouso nos domínios do banco do projeto retorna instantaneamente e adota seu valor homônimo disfarçado vinculado do passado inalterado.
+        \item \textit{Ineditismo da Amostra (Falta / Miss)}: Pelo reconhecimento e inexistência prévia da chave gerencial o gerador embarcado sorteia adequamentos para sugerir \textit{fake inputs} categoricamente compatíveis por contexto construindo as devidas propostas.
+    \end{itemize}
+    \item \textbf{[Frontend Svelte] Malha de Revisão Ativa}: Deságua em devolutiva final à view de janela estipulando o cruzamento em duas colunas demonstrativas explícitas ("Real >> Fictício"). O software pausa os avanças subjacentes aguardando permissividade manual e categoriza a situação perante rótulo '\textit{Revisão Pendente}'.
+    \item \textbf{[Ator Usuário] Interação e Aval Humano}: Utente do programa analisa preenchimentos listados optando em subscrever nomes falsamente sugeridos de preferências absolutas em sua visualização. Confirma ação com clique derradeiro impulsionador no botão "Permitir Anonimização".
+    \item \textbf{[Controlador Backend] Fixação em Mídia Interna}: Com os termos estabelecidos insere em procedimento \textit{INSERT/UPDATE} ao SQLite do arquivo engessando toda cadeia aprovada a integrar de maneira irremovível os históricos locais vindouros servindo as checagens subsequentes que hão de ocorrer no mesmo volume.
+    \item \textbf{[Formatador (I/O) Python] Restituição Topográfica}: Alojando todas rotinas traduzidas o script reverte fluxos e aglutina injeções exatas aplicando e restabelecendo os layouts resguardados advindos pela manobra primária estipulada em seu passo consecutivo de isolamento tipográfico original (arquitetura final).
+    \item \textbf{[Ator Usuário] Saída do Produto e Encapsulamento}: Rotininha final acena janela visualizadora nativa (\textit{Save-As}) outorgando download seguro aos elementos transpostos anonimamente na extensão solicitada declarando validade de selo 'Aprovado'. Documento desponta sem maculas contendo somente traços e informações criptografadas (cegas à correlação direta LGPD) pronto e validado perante os fluxos exigentes dos canais em Inteligência Artificial em Nuvem via \textit{LLM}.
+\end{enumerate}
+
+\chapter{Configuração do Motor NLP e Entidades Semânticas}
+
+Para que o mapeamento anonimizador consiga descobrir dados sensíveis perfeitamente em meio a textos fluidos e imprecisos, este projeto implementa um funil híbrido combinando testes matemáticos de padrão (Regex) com modelos avançados de NLP (Processamento de Linguagem Natural) para inferência semântica de entidades inéditas contextuais.
+
+\section{Propostas e Abordagens de Análise Semântica}
+Para a substituição dos conectores puramente de máscara na absorção de personalidades abstratas (como nomes ou funções nominais de ocupação governamental), existem três abordagens tecnológicas mapeadas para orquestrar o reconhecimento inteligente de contexto na máquina de forma 100\% offline. Estas devem guiar as diretrizes arquiteturais atreladas ao Microsoft Presidio e/ou módulos coadjuvantes.
+
+\begin{enumerate}
+    \item \textbf{Opção 1: Modelo NLP Nativo de Referência (SpaCy / BERTimbau com Presidio)}
+    \begin{itemize}
+        \item \textit{Mecânica}: Abordagem tradicional da engenharia padrão. O motor Presidio incorpora nativamente a biblioteca processual \textit{spaCy}. Configuramos um pacote local e treinado em língua portuguesa (como \texttt{pt\_core\_news\_lg} ou redes como \texttt{BERTimbau}) que avalia essencialmente a gramática do período. O computador pontua que o substantivo é pessoa pela sua localização e papel verbal, abstendo-se de necessidade listável originária prévia.
+        \item \textit{Prós}: Operadores eficientes, leves em processamento orgânico em tempo real contra hardwares simples ou medianos desprovidos de placa de vídeo independente. Estrutura madura na mescla com bibliotecas corporativas abertas.
+        \item \textit{Desafio}: Taxonomia pouco elástica; encontra-se tipificado rigorosamente sobre etiquetas primárias imutáveis (rótulos unicamente absolutos para \textit{PERSON, ORGANIZATION, LOCATION}), gerando dificuldade natural na criação de extratores complexos customizáveis como "Cargo Político Exposto".
+    \end{itemize}
+
+    \item \textbf{Opção 2: Modelo Generalista NER Direcionado (GLiNER)}
+    \begin{itemize}
+        \item \textit{Mecânica}: Abordagem de fronteira em extração orientada moderna inteligente. O módulo GLiNER rompe amarras clássicas atuando ancorado na injeção de \textit{prompts} em sua estrutura neural simplificada. A API interna passará na leitura um vetor taxônico guiado (\texttt{["Nome Civil Humano", "Cargo Sensível", "Patente ou Título Ocupacional", "Informação Identificadora Singular"]}), delegando ao analisador rastrear no limite solicitado.
+        \item \textit{Prós}: Flexibilidade excepcional na capacidade interpretativa absorvendo quase todas as utilidades de expressões pontuais para extrair dados esdrúxulos ou complexos (ex: localizando uma posição trabalhista obscura) rodando perfeitamente bem sobre memória principal (CPU) dos computadores alvos.
+        \item \textit{Desafio}: Demanda elaboração em *fine-tuning* do bloco chamador ou implementador secundário para o pareamento direto que deve retroalimentar os relatórios no Presidio.
+    \end{itemize}
+
+    \item \textbf{Opção 3: Incorporação de Micro-LLM Dedicado (Ferramentas de IA Generativa Offline via Ollama)}
+    \begin{itemize}
+        \item \textit{Mecânica}: Posicionamento de base pautado no uso bruto na orquestração embarcada na raiz via motor Ollama englobando IAs generativas de escalas focadas ("Micro-LLMs" pesando na casa dos 3 bilhões aos 8 bilhões de parâmetros como Llama-3-8B ou Phi-3-Mini). Executamos repasses das sentenças no formato nativo exigindo a montagem e indicação estrita na via estrutural dos mapeamentos solicitada nos limites.
+        \item \textit{Prós}: Potencial de análise infinitamente aguçado para a captura extrema de subjetividade oculta no texto livre, contornando a exclusão de indicações dedutíveis que quebrem indiretamente anonimatos e inviabilizem desvendar um autor por descrição da autoria isoladamente. 
+        \item \textit{Contras / Desafio}: Eleva brutalmente as barreiras base do maquinário final do utente, engessando um piso rigoroso a computadores mais sofisticados dotados em no mínimo 8GB alocado estritamente na memória, o que pode inviabilizar escalabilidade a instâncias de trabalho corriqueiras, burocráticas ou muito antigas.
+    \end{itemize}
+\end{enumerate}
+
+\section*{Diretriz do Produto Mínimo Viável (MVP)}
+Após o crivo perante as capacidades e limitações do hardware do público focado deste software, consta nesta documentação que a \textbf{Opção 2 (Modelo Generalista Inteligente GLiNER alinhado ao Regex puro para dados numéricos absolutos)} foi temporariamente escolhida como baliza do projeto para as fases primárias e iniciação prática da engrenagem. A adoção dessa metodologia dupla em cascata configura o ponto de segurança e equilíbrio necessário, agregando abstração altamente semântica com reconhecimento avançado sem inviabilizar instâncias e computadores restritos que falhariam em sustentar ecossistemas pesados dedicados integralmente às LLMs.
+
+
+\chapter{Recursos do Sistema}
+
+\section{Descrição e Prioridade}
+A lista de recursos do sistema está organizada considerando o fluxo de desenvolvimento do modelo mínimo viável (MVP) e os incrementos avançados (futuros):
+\begin{enumerate}
+    \item \textbf{Mapeamento Consistente (Alta Prioridade)}: Funcionalidade principal de criação de projetos. É ela que mantém a igualdade das substituições de entidades fictícias em todos os arquivos de um mesmo grupo, construindo o banco de dados interno.
+    \item \textbf{Detecção de Entidades do Brasil (Alta Prioridade)}: Adaptação das ferramentas e módulos para o monitoramento de padrões cadastrais rigorosos, operando sob informações de endereços e registros nacionais (como CPF e RG).
+    \item \textbf{Painel de Controle e Revisão (Média Prioridade)}: Uma grade de relatórios e verificações para a aprovação ou alteração das propostas estabelecidas pelas máquinas.
+    \item \textbf{Semântica, Óptica e Segurança (Baixa Prioridade/Plus)}: A introdução de proteções através de blindagem criptográfica nas bibliotecas internas, associadas a OCR para arquivos e varreduras semânticas complexas baseadas em linguagem local.
+\end{enumerate}
+
+\section{Requisitos Funcionais}
+A fim de guiar o desenvolvimento arquitetural e compor toda a engenharia da aplicação a partir do zero, os requisitos funcionais estão aglutinados através de alta granularidade e divididos em seis módulos lógicos da operação principal da ferramenta. Todos os módulos preveem uma rotina inteiramente isolada (offline).
+
+\subsection*{1. Gestão de Projetos (Isolamento de Dados)}
+\begin{itemize}
+    \item \textbf{RF01 - Criar Novo Projeto}: O sistema deve permitir ao usuário criar um novo projeto informando um Título e uma Descrição opcional.
+    \item \textbf{RF02 - Listar Projetos}: O sistema deve exibir uma lista de projetos ativos, mostrando o nome, a quantidade de arquivos atrelados e a data de última modificação.
+    \item \textbf{RF03 - Abrir Projeto}: O sistema deve carregar o banco de dados local (SQLite) específico do projeto selecionado, delimitando o escopo da consistência de identidades.
+    \item \textbf{RF04 - Excluir Projeto}: O sistema deve permitir a exclusão completa de um projeto, apagando o banco SQLite atrelado a ele e todos os mapeamentos contidos.
+    \item \textbf{RF05 - Exportar/Importar Projeto}: O sistema permitirá empacotar o projeto (arquivos e banco de dados) para transferência segura offline para outra máquina.
+\end{itemize}
+
+\subsection*{2. Gestão de Arquivos do Projeto}
+\begin{itemize}
+    \item \textbf{RF06 - Importar Documentos}: O sistema permitirá ao usuário fazer o upload de arquivos (.txt, .docx e .pdf) para a área de extração dentro do projeto aberto.
+    \item \textbf{RF07 - Visualizar Fila}: Exibir uma grade com os status de processamento de cada arquivo: Pendente, Em Processamento, Revisão Pendente e Finalizado.
+    \item \textbf{RF08 - Remoção da Fila}: O usuário pode retirar o arquivo da fila antes do aceite final, cancelando extrações passadas sem impactar definitivamente o banco dicionário principal daquele projeto.
+\end{itemize}
+
+\subsection*{3. Motor de Anonimização Automática (NLP)}
+\begin{itemize}
+    \item \textbf{RF09 - Extração Base de Texto}: Para formatos complexos (PDF, DOCX), utilizar analisadores e bibliotecas que separam a cadeia de escrita textual da diagramação original temporariamente.
+    \item \textbf{RF10 - Identificadores Fiscais BR}: O motor deverá identificar nativamente incidências de CPF e CNPJ (validados com máscara e sem máscara) além das documentações como RG.
+    \item \textbf{RF11 - Identificadores Geográficos e Contato}: O motor identificará ativamente E-mails, Telefones dispostos com formato brasileiro, CEPs e referências a Logradouros.
+    \item \textbf{RF12 - Identificadores de Personalidade}: O motor varrerá a existência de Nomes Próprios, através de reconhecimento de entidades nomeadas apoiados em vocabulários nativos de prenomes.
+\end{itemize}
+
+\subsection*{4. Dicionário Relacional (A Consistência)}
+\begin{itemize}
+    \item \textbf{RF13 - Consulta Instantânea de Vínculo}: Ao captar um Dado Sensível, o sistema consulta o banco de dados enxuto operando localmente no projeto, verificando se a entidade já tem correspondente fictício gerado anteriormente.
+    \item \textbf{RF14 - Autopreenchimento de Vínculo Histórico}: Ocorrendo a incidência do RF13, a máquina aplica o mesmo Dado Fictício salvo aos novos encontros, assegurando integridade e consistência durante todo o tempo de vida avaliativo.
+    \item \textbf{RF15 - Geração Crível para Ineditismos}: Para um Dado Sensível em aparição original e única na primeira validação do programa, a máquina sorteará e associará um Dado Fictício substituto e estruturalmente plausível na matriz temporal.
+    \item \textbf{RF16 - Inserção de Vínculo na Base}: Quando perfeitamente chancelado através da indicação efetuada pelo controlador sistêmico a nova relação ficará salva no banco SQLite local.
+\end{itemize}
+
+\subsection*{5. Painel de Revisão e Edição}
+\begin{itemize}
+    \item \textbf{RF17 - Espelhamento Visível}: O software renderizará um divisor lado a lado contendo o bloco textual base cru contrastado à sua versão alterada anonimizada contendo marcações ressaltadoras de grifo.
+    \item \textbf{RF18 - Tabela de Equivalências}: O painel exibirá as indicações listadas dispostas sobre itens mapeados compreendendo as formadoras da conversão analítica referenciadora e identificadora da indicação.
+    \item \textbf{RF19 - Sobrescrita Manual In-Line}: É essencial assegurar que as tabelas informativas gerem permissividade manipuladora absoluta do resultado aos critérios adotados das equivalências da convenção das palavras.
+    \item \textbf{RF20 - Reatividade Conectada}: Modificar preenchimentos presentes no resumo de marcação alterará de pronto e em simultâneo representação da visibilidade grifada indicativa da visualização conjunta dos campos documentais.
+    \item \textbf{RF21 - Botão de Autorização}: A adoção irrevogável só concretizará transição da proposta após consolidação do preenchimento ao submeter os resultados.
+\end{itemize}
+
+\subsection*{6. Processamento de Saída}
+\begin{itemize}
+    \item \textbf{RF22 - Restituição Estrutural}: A devolução base deve engajar na formatação mantendo em limites do possível parágrafos e negritos docx/pdf nativos abrigando em seu intermédio reabastecimentos de conteúdos passados em injeções da tradução final substitutiva contendo mascaramento inofensivo à formatação de apoio.
+    \item \textbf{RF23 - Salvamento Assíncrono Local}: Após confirmadas revisões visuais as finalizações originarão pastas no percurso desejado sem nunca em hipótese alguma anular ou sobrescrever ou macular as origens não alteradas.
+\end{itemize}
+
+\chapter{Outros Requisitos Não Funcionais}
+
+\section{Requisitos de Desempenho}
+\begin{itemize}
+    \item \textbf{RNF01 - Tempo de Processamento Assíncrono}: O backend (Python) deve processar as conversões e extrações nos bastidores de forma assíncrona, mantendo a responsividade do frontend (Svelte) constante, com alimentação de barra de progresso visual, livre de congelamentos de tela.
+    \item \textbf{RNF02 - Eficiência Multidocumental}: A ferramenta deve ser perfeitamente hábil para ler e analisar fluxos massivos de textos brutos, concluindo arquivos com múltiplas folhas em ordens temporais reduzidas (poucos minutos) para computadores domésticos convencionais.
+    \item \textbf{RNF03 - Gestão de Alocação de Memória RAM}: A leitura e a varredura algorítmica de arquivos pesados (como PDFs extensos) devem ocorrer sob segmentação de blocos (chunks), evitando vazamento de memória e travamento por esgotamento operacional.
+    \item \textbf{RNF04 - Banco Local Enxuto}: A latência exigida sobre o banco de dados demandará que suas estruturas possuam índices leves, realizando buscas e salvamentos locais rápidos independentemente do tamanho do dicionário armazenado no SQLite.
+\end{itemize}
+
+\section{Requisitos de Segurança e Privacidade}
+\begin{itemize}
+    \item \textbf{RNF05 - Isolamento Total (Offline)}: Em nenhuma circunstância as bibliotecas internas da aplicação poderão necessitar e consumir recursos provindos de instâncias web ou portas externas de rede (100\% Air-Gapped).
+    \item \textbf{RNF06 - Ausência de Telemetria}: Fica vetada a coleta ou o envio disfarçado de métricas analíticas subjacentes que analisem e definam o rastro comportamental e processual da aplicação sobre sua origem.
+    \item \textbf{RNF07 - Blindagem entre Contextos}: O material original extraído de um Projeto A nunca poderá contaminar os registros e bases do painel original restrito ao Projeto B. Todo ambiente existirá blindado e apartado pelo respectivo banco.
+    \item \textbf{RNF08 - Criptografia Ativa Restritiva (Update Futuro)}: O sistema projetará escalabilidade prevendo injeções criptográficas focadas inteiramente para isolar contra furtos acidentais nos volumes gravados do aparelho físico, dependendo exclusivamente de chave-mestra por entrada local.
+\end{itemize}
+
+\section{Atributos de Qualidade do Software}
+\begin{itemize}
+    \item \textbf{RNF09 - Simplicidade Ergonômica Leiga}: A interface será estritamente desenhada visando ocultar a densidade técnica e os trâmites dos processos de conversão, de modo que o uso flua e consiga ser abraçado por públicos alheios ao mercado da tecnologia.
+    \item \textbf{RNF10 - Suporte Aberto Multi-SO}: Baseada na liberdade do empacotamento com binários portáteis provindos de bibliotecas das tecnologias Svelte e Python abertas isentos sob imposição de restrições por empresas e entidades estatais atreladas.
+    \item \textbf{RNF11 - Robustez a Interrupções (Resiliência)}: Fechamentos forçados diretos e acidentais durante análises correntes não devem macular e corromper as estruturas completas e originais já salvas nas bases acopladas daquele projeto validado.
+\end{itemize}
+
+\section{Regras de Negócio e Legalidade}
+\begin{itemize}
+    \item \textbf{RNF12 - Pseudonimização Rigorosa (LGPD)}: O roteiro será alinhado invariavelmente visando isenção que torne inútil rastreamentos cruzados e impeçam correlação e enquadramentos frente aos modelos expostos hospedados nos parques corporativos na nuvem.
+    \item \textbf{RNF13 - Equivalência Fiel de Sentido Conceitual}: Relações providas aleatoriamente pela máquina para ditar originalidades transcritas deverão demonstrar consistências equivalentes nos seus propósitos de papel visando inviabilizar distúrbios que desmembrem as estruturas textuais dos cargos e sentidos gramaticais inerentes.
+\end{itemize}
+
+\chapter{Outros Requisitos e Visão de Futuro}
+Para garantir a sobrevida e maturidade escalável do projeto em atualizações posteriores à sua versão inicial (MVP), as seguintes expansões arquiteturais e operacionais ficam delineadas como adequações evolutivas da aplicação:
+
+\begin{itemize}
+    \item \textbf{Visão Computacional (OCR)}: Incorporação nativa de um motor local de reconhecimento óptico de caracteres (como o PaddleOCR ou Tesseract) para permitir interações diretas contra imagens brutas, como arquivos digitalizados mecanicamente ou escaneamentos em PDF que não comportam edição base na sua camada vetorial primária.
+    \item \textbf{Análise Semântica Através de LLM Local}: Evolução das interpretações em contexto relacional. A ferramenta prevê embarcar modelos menores operando local e completamente offline do tipo "micro LLM" possibilitando que lógicas deduzam identidades através de cargos ou singularidades citadas soltas no texto, como bloqueios preventivos aplicáveis a denominações do tipo "Presidente da República", independentemente de lacunas da falta do RG/nome atrelado no papel.
+    \item \textbf{Camada de Criptografia em Repouso}: Construção de proteções em fortificação aplicável aos depósitos dos bancos de cada projeto atuando diretamente em repouso por chave definida (Password individual) dificultadora contra invasores extraindo diretórios pela rede estática.
+\end{itemize}
+
+\end{document}
