@@ -1,5 +1,14 @@
-Programa Desenvolver - Análise Avançada de Dados-20260502T151748Z-3-001/
+cat <<EOF > .gitignore
+# Ignorar bases pesadas e redundantes
 *.csv
 *.7z
-*.parquet
-*.xlsx
+*.zip
+!docs/*.xlsx
+
+# Ignorar binários de compilação
+convert_parquet
+
+# Sistema e Python
+__pycache__/
+.DS_Store
+EOF
