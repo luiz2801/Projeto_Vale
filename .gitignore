@@ -1,7 +1,5 @@
-__pycache__/
-*.pyc
-.env
-.venv/
-venv/
-env/
-.DS_Store
+Programa Desenvolver - Análise Avançada de Dados-20260502T151748Z-3-001/
+*.csv
+*.7z
+*.parquet
+*.xlsx
