@@ -7,7 +7,7 @@ cat <<EOF > .gitignore
 *.npy
 # Ignorar binários de compilação
 convert_parquet
-
+.venv/
 # Sistema e Python
 __pycache__/
 .DS_Store
