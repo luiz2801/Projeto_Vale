@@ -4,7 +4,7 @@ cat <<EOF > .gitignore
 *.7z
 *.zip
 !docs/*.xlsx
-
+*.npy
 # Ignorar binários de compilação
 convert_parquet
 
