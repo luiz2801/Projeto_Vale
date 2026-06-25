@@ -1,0 +1,283 @@
+--- Cell 2 ---
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from tqdm import tqdm
+import tensorflow as tf
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Lambda, Embedding, Concatenate, LSTM, Dense, BatchNormalization, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from sklearn.utils.class_weight import compute_class_weight
+
+
+
+
+--- Cell 4 ---
+# Verifica quais dispositivos estão disponíveis
+gpus = tf.config.list_physical_devices('GPU')
+
+if gpus:
+    print(f"GPU detectada! O modelo vai voar 🚀: {gpus}")
+else:
+    print("Ainda usando CPU 🐢. Verifique a configuração do ambiente.")
+
+--- Cell 6 ---
+
+print("Carregando os dados temporais...")
+# Defina o mês que deseja trabalhar (ex: 'jan', 'feb', 'marco')
+months = ["jan", "feb", "marco", "apr", "may", "jun"]
+mes = 4
+mes_escolhido = months[mes] 
+arquivo_mes = f"{mes_escolhido}_dados_lstm.csv"
+
+df = pd.read_csv(arquivo_mes)
+
+# --- PREVENÇÃO DE DATA LEAKAGE ---
+cols_features = [
+    'Tag_Frota', 'Tipo', 'Matricula_Operador_Hash', 'Id_Alarme', 'Id_Criticidade', 
+    'Valor', 'Tempo_Trabalhando_Horas', 'Periodo_Dia_Int', 
+    'Dia_1', 'Dia_2', 'Dia_3', 'Dia_4', 'Dia_5', 'Dia_6'
+]
+
+# ---------------------------------------------------------
+# INÍCIO DA PARTE QUE ESTAVA FALTANDO (SPLIT CRONOLÓGICO)
+# ---------------------------------------------------------
+print("Realizando a divisão cronológica (80% Treino, 20% Teste)...")
+
+# Em séries temporais, não podemos usar o train_test_split aleatório do sklearn.
+# Precisamos garantir que os dados estejam ordenados pelo tempo.
+# Se o seu CSV tiver uma coluna de Data/Hora, certifique-se de ordenar antes (ex: df = df.sort_values('Data_Hora'))
+
+tamanho_treino = int(len(df) * 0.80)
+
+# Divide sequencialmente
+df_train = df.iloc[:tamanho_treino].copy()
+df_test = df.iloc[tamanho_treino:].copy()
+
+print(f"Tamanho do Treino: {len(df_train)} linhas")
+print(f"Tamanho do Teste: {len(df_test)} linhas")
+# ---------------------------------------------------------
+
+# 3. Padronização 
+print("Aplicando StandardScaler (Fit no Treino, Transform no Teste)...")
+scaler = StandardScaler()
+cols_to_scale = ['Valor', 'Tempo_Trabalhando_Horas']
+
+df_train.loc[:, cols_to_scale] = scaler.fit_transform(df_train[cols_to_scale])
+df_test.loc[:, cols_to_scale] = scaler.transform(df_test[cols_to_scale])
+# 4. Configurações da Janela Temporal
+SEQ_LENGTH = 30
+PROBABILIDADE_MANTER_ZERO = 0.30
+
+--- Cell 8 ---
+from sklearn.preprocessing import LabelEncoder
+
+print("Aplicando Label Encoding para variáveis categóricas de alta cardinalidade...")
+
+# 1. Transforma os IDs gigantes em números sequenciais (0 até N)
+le_operador = LabelEncoder()
+df['Matricula_Operador_Hash'] = le_operador.fit_transform(df['Matricula_Operador_Hash'])
+
+le_alarme = LabelEncoder()
+df['Id_Alarme'] = le_alarme.fit_transform(df['Id_Alarme'])
+
+# 2. Agora o tamanho do vocabulário é exatamente a quantidade de IDs ÚNICOS que existem, mais 1 (para segurança)
+VOCAB_OPERADOR = df['Matricula_Operador_Hash'].nunique() + 1
+VOCAB_ALARME = df['Id_Alarme'].nunique() + 1
+
+print(f"Vocabulário de Operadores Corrigido: {VOCAB_OPERADOR}")
+print(f"Vocabulário de Alarmes Corrigido: {VOCAB_ALARME}")
+
+
+--- Cell 10 ---
+def criar_tensores(df_subset, is_train=True):
+    X_list, y_list = [], []
+    
+    # O loop groupby('TAG') garante isolamento. 
+    # Sequências do Caminhão A NUNCA se misturarão com o Caminhão B.
+    for tag, group in tqdm(df_subset.groupby('TAG'), desc=f"Gerando janelas ({'Treino' if is_train else 'Teste'})"):
+        X_group = group[cols_features].values
+        
+        # --- ADAPTAÇÃO DO TARGET ---
+        # Substituímos 'Is_Dont_Go' por 'Target_Predictive' (o target já adiantado 4h no Notebook 2)
+        y_group = group['Target_Predictive'].values
+        
+        # Se um caminhão tem menos registros que o tamanho da janela, ele é ignorado
+        if len(X_group) < SEQ_LENGTH:
+            continue
+            
+        for i in range(len(X_group) - SEQ_LENGTH):
+            target = y_group[i + SEQ_LENGTH - 1]
+            
+            # Sub-amostragem da classe majoritária APENAS no conjunto de treinamento
+            if is_train and target == 0 and np.random.rand() > PROBABILIDADE_MANTER_ZERO:
+                continue
+                
+            janela = X_group[i : i + SEQ_LENGTH]
+            X_list.append(janela)
+            y_list.append(target)
+            
+    return np.array(X_list, dtype=np.float32), np.array(y_list, dtype=np.int8)
+
+# Gerando os Tensores Finais
+print("\nGerando tensores de Treino...")
+X_train, y_train = criar_tensores(df_train, is_train=True)
+
+print("\nGerando tensores de Teste...")
+X_test, y_test = criar_tensores(df_test, is_train=False)
+
+print("\n--- RESUMO DOS TENSORES ---")
+print(f"Treino X: {X_train.shape} | Y: {y_train.shape} | % Classe 1: {(y_train.mean()*100):.2f}%")
+print(f"Teste  X: {X_test.shape}  | Y: {y_test.shape}  | % Classe 1: {(y_test.mean()*100):.2f}%")
+
+# Salvando
+import os
+os.makedirs('../resultados', exist_ok=True)
+
+np.save(f'../resultados/{mes_escolhido}_X_train.npy', X_train)
+np.save(f'../resultados/{mes_escolhido}_y_train.npy', y_train)
+np.save(f'../resultados/{mes_escolhido}_X_test.npy', X_test)
+np.save(f'../resultados/{mes_escolhido}_y_test.npy', y_test)
+print(f"Tensores isolados e salvos com sucesso em ../resultados/ com o prefixo {mes_escolhido}_ !")
+
+
+--- Cell 12 ---
+VOCAB_OPERADOR = int(df['Matricula_Operador_Hash'].max()) + 1
+VOCAB_ALARME = int(df['Id_Alarme'].max()) + 1
+
+print(f"Vocabulário de Operadores: {VOCAB_OPERADOR}")
+print(f"Vocabulário de Alarmes: {VOCAB_ALARME}")
+
+# 2. Definição da Entrada
+# Formato: (Passos no Tempo = 30, Atributos = 14)
+input_layer = Input(shape=(SEQ_LENGTH, 14), name="Input_Completo")
+
+# 1. Calculando pesos das classes para lidar com o desbalanceamento no treino
+pesos = compute_class_weight(class_weight='balanced', classes=np.unique(y_train), y=y_train)
+class_weights = dict(enumerate(pesos))
+print(f"Pesos das Classes: {class_weights}")
+
+# 2. Definição da Entrada
+# Formato: (Passos no Tempo = 30, Atributos = 14)
+input_layer = Input(shape=(SEQ_LENGTH, 14), name="Input_Completo")
+
+# 3. Funções de Fatiamento (Slicing) para as camadas Lambda
+# O índice das colunas segue a lista: 
+# 2 = Matricula_Operador_Hash | 3 = Id_Alarme
+def slice_operador(x): return x[:, :, 2]
+def slice_alarme(x): return x[:, :, 3]
+
+def slice_numericos_e_restante(x):
+    # Pega índices 0, 1 (Tag, Tipo) e 4 a 13 (Id_Criticidade até Dia_6)
+    part_1 = x[:, :, 0:2]
+    part_2 = x[:, :, 4:14]
+    return tf.concat([part_1, part_2], axis=-1)
+
+# Aplicando as fatias
+operador_input = Lambda(slice_operador, name="Slice_Operador")(input_layer)
+alarme_input = Lambda(slice_alarme, name="Slice_Alarme")(input_layer)
+numericos_input = Lambda(slice_numericos_e_restante, name="Slice_Numericos")(input_layer)
+
+# 4. Camadas de Embedding (Ajuste o output_dim conforme sua necessidade)
+EMB_DIM = 8 
+emb_operador = Embedding(input_dim=VOCAB_OPERADOR, output_dim=EMB_DIM, name="Emb_Operador")(operador_input)
+emb_alarme = Embedding(input_dim=VOCAB_ALARME, output_dim=EMB_DIM, name="Emb_Alarme")(alarme_input)
+
+# 5. Concatenação de todas as features em cada passo de tempo
+# As saídas do embedding terão shape (Batch, 30, 8), e a parte numérica (Batch, 30, 12)
+concat_layer = Concatenate(axis=-1, name="Concat_Features")([numericos_input, emb_operador, emb_alarme])
+
+# 6. Arquitetura LSTM Profunda
+lstm_1 = LSTM(64, return_sequences=True, name="LSTM_1")(concat_layer)
+bn_1 = BatchNormalization(name="BatchNorm_1")(lstm_1)
+drop_1 = Dropout(0.3, name="Drop_1")(bn_1)
+
+lstm_2 = LSTM(32, return_sequences=False, name="LSTM_2")(drop_1)
+bn_2 = BatchNormalization(name="BatchNorm_2")(lstm_2)
+drop_2 = Dropout(0.3, name="Drop_2")(bn_2)
+
+# 7. Camada de Saída (Classificação Binária)
+output_layer = Dense(1, activation='sigmoid', name="Saida_Classificacao")(drop_2)
+
+# Construindo o Modelo
+model = Model(inputs=input_layer, outputs=output_layer)
+
+# ... [Mantenha a arquitetura LSTM Profunda idêntica até o output_layer] ...
+
+# 8. Definição de Métricas e Compilação
+metricas = [
+    tf.keras.metrics.AUC(curve='PR', name='auc_pr'),   # Métrica primária para Eventos Raros
+    tf.keras.metrics.Recall(name='recall'),
+    tf.keras.metrics.Precision(name='precision'),
+    tf.keras.metrics.AUC(name='auc_roc')               # Mantido em segundo plano apenas para log
+]
+
+model.compile(
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+    loss='binary_crossentropy',
+    metrics=metricas
+)
+
+# 9. Configurando Early Stopping 
+early_stopping = EarlyStopping(
+    monitor='val_auc_pr', # Focando severamente no PR-AUC
+    mode='max',
+    patience=5,
+    restore_best_weights=True,
+    verbose=1
+)
+
+
+--- Cell 14 ---
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import classification_report, confusion_matrix, precision_recall_curve
+
+print("--- Otimização do Limiar (Threshold) ---")
+# 1. Gerar as predições probabilísticas
+y_pred_prob = model.predict(X_test).ravel()
+
+# 2. Utilizar a curva de Precision-Recall para achar o ponto de maior eficiência
+precisions, recalls, thresholds = precision_recall_curve(y_test, y_pred_prob)
+
+# Calculando o F1-Score para todos os limiares testados
+# Adicionado epsilon (1e-10) para evitar erro matemático de divisão por zero
+f1_scores = 2 * (precisions * recalls) / (precisions + recalls + 1e-10)
+
+# Localiza o índice do maior F1-Score e extrai o limiar ideal
+best_idx = np.argmax(f1_scores)
+best_threshold = thresholds[best_idx]
+best_f1 = f1_scores[best_idx]
+
+print(f"Melhor Threshold Matemático: {best_threshold:.4f}")
+print(f"F1-Score Esperado: {best_f1:.4f}")
+print(f"Recall Esperado: {recalls[best_idx]:.4f}")
+print(f"Precisão Esperada: {precisions[best_idx]:.4f}\n")
+
+# Se desejar um threshold focado puramente em capturar falhas (Recall), 
+# você pode baixar esse valor manualmente. Vamos usar o ótimo do F1:
+threshold_final = best_threshold
+
+# Aplica o novo threshold
+y_pred = (y_pred_prob >= threshold_final).astype(int)
+
+# 3. Exibir o relatório focado na Classe 1
+print("--- Relatório de Classificação Final ---")
+print(classification_report(y_test, y_pred, target_names=['Classe 0 (Operacional)', 'Classe 1 (Alerta Dont Go)']))
+
+# 4. Plotar a Matriz de Confusão para Cenários Raros
+cm = confusion_matrix(y_test, y_pred)
+
+plt.figure(figsize=(7,5))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Reds', linewidths=1, linecolor='black',
+            xticklabels=['Previsto: Operacional', 'Previsto: Alerta Dont Go'], 
+            yticklabels=['Real: Operacional', 'Real: Dont Go'])
+plt.ylabel('Realidade (Ground Truth)', fontweight='bold')
+plt.xlabel('Previsão da LSTM (Avisou com 4h de Antecedência?)', fontweight='bold')
+plt.title(f'Matriz de Confusão\nLimiar Calibrado = {threshold_final:.4f}', pad=20, fontsize=14)
+import os
+os.makedirs('../resultados', exist_ok=True)
+plt.savefig(f'../resultados/{mes_escolhido}_matriz_confusao.png', bbox_inches='tight', dpi=300)
+plt.savefig(f'../resultados/{mes_escolhido}_matriz_confusao.svg', bbox_inches='tight')
+plt.show()
+
