@@ -9,6 +9,7 @@ cat <<EOF > .gitignore
 convert_parquet
 .venv/
 # Sistema e Python
-__pycache__/
 .DS_Store
 EOF
+__pycache__/
+.ipynb_checkpoints/
