@@ -1,3 +1,6 @@
+
+
+
 cat <<EOF > .gitignore
 # Ignorar bases pesadas e redundantes
 *.csv
